@@ -1,0 +1,79 @@
+---
+title: "Activity_process"
+author: "Yongxiao Zhou"
+date: "8/16/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, results = "hide")
+```
+
+## Load the data
+
+
+```{r load data}
+activity <- read.csv("activity.csv")
+```
+
+# What is mean total number of steps taken per day?
+
+## Remove NAs and calculate
+```{r 1}
+activity_r <- activity[!is.na(activity$steps),]
+sum_result <- tapply(activity_r$steps, factor(activity_r$date),FUN = sum)
+hist(sum_result, xlab = "number of steps")
+average <- mean(sum_result)
+med <- median(sum_result)
+```
+The mean of total number of steps taken per day is `r average`, median is `r med`.  
+
+# What is the average daily activity pattern?
+```{r 2}
+daily_mean_result <- tapply(activity_r$steps, factor(activity_r$interval),FUN = mean)
+plot(c(1:dim(daily_mean_result)),daily_mean_result,
+xlab = "time interval index",
+ylab = "steps")
+max_loc <- which(daily_mean_result == max(daily_mean_result))
+```
+The maximun time period is `r max_loc
+
+# Imputing missing values
+
+```{r 3}
+sum(is.na(activity$steps))
+im_activity <- activity
+for (i in c(1:NROW(im_activity$steps)) ){
+        if (is.na(im_activity$steps[i])){
+                id <- ((im_activity$interval[i])%/%100)*12+(((im_activity$interval[i]))%%100)/5+1
+                im_activity$steps[i] <- daily_mean_result[id]
+        }
+                
+}
+sum_im_result <- tapply(im_activity$steps, factor(im_activity$date),FUN = sum)
+hist(sum_im_result, xlab = "number of steps")
+average_im <- mean(sum_im_result)
+med_im <- median(sum_im_result)
+```
+The mean of total number of steps taken per day is `r average_im`, median is `r med`.  
+The result is different. 10000-15000 interval increased by 8 days. The interval where is the mean
+stays in will increase by the amount of misssing days
+
+# Are there differences in activity patterns between weekdays and weekends?
+
+```{r 4}
+day <- weekdays(as.Date(im_activity$date))
+for (i in 1:NROW(im_activity$steps)){
+        if (day[i]=="Saturday"||day[i]=="Sunday"){
+                day[i] <- "Weekend"
+        } else {
+                        day[i] <- "Weekday"
+                }
+}
+wd_activity <- cbind(im_activity,day)
+weekday_daily_mean_result <- tapply(activity_r$steps, factor(activity_r$interval),FUN = mean)
+plot(c(1:dim(daily_mean_result)),daily_mean_result,
+xlab = "time interval index",
+ylab = "steps")
+max_loc <- which(daily_mean_result == max(daily_mean_result))
+```
