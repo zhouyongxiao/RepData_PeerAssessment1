@@ -33,7 +33,8 @@ The mean of total number of steps taken per day is `r average`, median is `r med
 daily_mean_result <- tapply(activity_r$steps, factor(activity_r$interval),FUN = mean)
 plot(c(1:dim(daily_mean_result)),daily_mean_result,
 xlab = "time interval index",
-ylab = "steps")
+ylab = "steps",
+type = "l")
 max_loc <- which(daily_mean_result == max(daily_mean_result))
 ```
 The maximun time period is `r max_loc
@@ -71,9 +72,19 @@ for (i in 1:NROW(im_activity$steps)){
                 }
 }
 wd_activity <- cbind(im_activity,day)
-weekday_daily_mean_result <- tapply(activity_r$steps, factor(activity_r$interval),FUN = mean)
-plot(c(1:dim(daily_mean_result)),daily_mean_result,
+wd <- split(wd_activity,wd_activity$day)
+weekday_daily_mean_result <- tapply(wd$Weekday$steps, factor(wd$Weekday$interval),FUN = mean)
+weekend_daily_mean_result <- tapply(wd$Weekend$steps, factor(wd$Weekend$interval),FUN = mean)
+par(mfrow=c(2,1))
+plot(c(1:dim(weekday_daily_mean_result)),weekday_daily_mean_result,
 xlab = "time interval index",
-ylab = "steps")
-max_loc <- which(daily_mean_result == max(daily_mean_result))
+ylab = "steps",
+main = "weekday",
+type = "l")
+plot(c(1:dim(weekend_daily_mean_result)),weekend_daily_mean_result,
+xlab = "time interval index",
+ylab = "steps",
+main = "weekend",
+type = "l")
+
 ```
